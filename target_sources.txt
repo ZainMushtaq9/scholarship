@@ -1,0 +1,65 @@
+========== JOB TARGET PORTALS ==========
+1. Rozee.pk
+2. National Job Portal (NJP)
+3. Indeed Pakistan
+4. Bayt.com Pakistan
+5. BrightSpyre
+6. Mustakbil
+7. Search O Pal
+8. Jobs.gov.pk
+9. Sindh Job Portal
+10. Punjab Jobs Portal
+11. People Perfect Jobs
+12. CareerOkay.com
+13. Remotive Pakistan
+14. LinkedIn Jobs Pakistan
+15. Ilmkidunya.com
+16. PaperJobz.com
+17. Apnijobs.pk
+18. PlacingJobs
+19. Bayrozgar.com
+20. RozioRoti Jobs
+21. Jobs in Pakistan (Google site)
+22. Mustakbil App
+23. HashJobs.pk
+24. JobsBank.pk
+25. Careerjet Pakistan
+26. Neuvoo Pakistan
+27. Google Careers
+28. Glassdoor Jobs
+29. Monster Pakistan
+30. LinkedIn Company Careers
+31. Talented Pakistan
+32. Content Writers Pakistan
+33. TechLekh
+34. PakistanDevJobs
+35. RemoteOK
+36. We Work Remotely
+37. Upwork
+38. Fiverr
+39. Toptal
+40. Freelancer.com
+41. Guru.com
+42. PeoplePerHour
+43. Jobz.pk
+44. Career Navigators
+45. USAJobs
+46. GulfTalent
+47. Naukri Gulf
+48. Indeed Global
+49. UpNext Pakistan
+50. Edarabia Careers
+
+========== SCHOLARSHIP TARGET BLOGS ==========
+1. StudyVista.pk
+2. Edify.pk
+3. EdWorld Study Abroad
+4. FESPak
+5. EdifyElite.com
+6. StudyAbroad.pk
+7. ParagonEducation.pk
+8. TimesConsultant.com
+9. Scholarships.com
+10. InternationalScholarships.com
+
+NOTE: The agent currently scrapes from accessible RSS feeds from these sites (where available to prevent CAPTCHA blocks) or allows manual importing from the Admin Panel. Expanding automated extraction to all 60 sites dynamically requires headless browsers and proxy rotation, which are not currently part of the 100% free stack.

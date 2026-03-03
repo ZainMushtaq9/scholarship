@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-100 mt-10">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                Username
+            </label>
+            <input
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                id="username" name="username" type="text" placeholder="admin" required>
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                Password
+            </label>
+            <input
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                id="password" name="password" type="password" placeholder="********" required>
+        </div>
+        <div class="flex items-center justify-between">
+            <button
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-colors"
+                type="submit">
+                Sign In
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
