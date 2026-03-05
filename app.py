@@ -31,26 +31,73 @@ def create_app():
     @app.route('/')
     def index():
         jobs = Job.query.filter_by(state='published').order_by(Job.date_posted.desc()).limit(50).all()
-        return render_template('index.html', items=jobs, type='job')
+        return render_template('index.html', items=jobs, type='job', category_filter=None)
+
+    @app.route('/jobs/<category>')
+    def jobs_by_category(category):
+        cat_map = {
+            'government': 'Government',
+            'private': 'Private',
+            'it': 'IT/Tech',
+            'education': 'Education',
+        }
+        cat_name = cat_map.get(category.lower(), category.capitalize())
+        jobs = Job.query.filter_by(state='published', category=cat_name).order_by(Job.date_posted.desc()).limit(50).all()
+        return render_template('index.html', items=jobs, type='job', category_filter=cat_name)
 
     @app.route('/scholarships')
     def scholarships():
-        scholars = Scholarship.query.filter_by(state='published').order_by(Scholarship.date_posted.desc()).limit(50).all()
-        return render_template('index.html', items=scholars, type='scholarship')
+        country = request.args.get('country')
+        query = Scholarship.query.filter_by(state='published')
+        if country:
+            query = query.filter_by(country=country)
+        scholars = query.order_by(Scholarship.date_posted.desc()).limit(50).all()
+        return render_template('index.html', items=scholars, type='scholarship', category_filter=country)
 
+    # --- Detail/Blog Pages ---
+    @app.route('/job/<int:id>')
+    @app.route('/job/<int:id>/<slug>')
+    def job_detail(id, slug=None):
+        job = Job.query.get_or_404(id)
+        return render_template('detail.html', item=job, item_type='job')
+
+    @app.route('/scholarship/<int:id>')
+    @app.route('/scholarship/<int:id>/<slug>')
+    def scholarship_detail(id, slug=None):
+        sch = Scholarship.query.get_or_404(id)
+        return render_template('detail.html', item=sch, item_type='scholarship')
+
+    # --- Sitemap with all detail pages ---
     @app.route('/sitemap.xml')
     def sitemap():
+        base = request.url_root.rstrip("/")
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        pages = ['/', '/scholarships']
-        for page in pages:
-            xml += '  <url>\n'
-            xml += f'    <loc>{request.url_root.rstrip("/")}{page}</loc>\n'
-            xml += f'    <lastmod>{datetime.now().strftime("%Y-%m-%d")}</lastmod>\n'
-            xml += '    <changefreq>daily</changefreq>\n'
-            xml += '  </url>\n'
+        
+        # Static pages
+        for page in ['/', '/scholarships', '/jobs/government', '/jobs/private', '/jobs/it']:
+            xml += f'  <url><loc>{base}{page}</loc><lastmod>{datetime.now().strftime("%Y-%m-%d")}</lastmod><changefreq>daily</changefreq></url>\n'
+        
+        # Job detail pages
+        with app.app_context():
+            jobs = Job.query.filter_by(state='published').all()
+            for j in jobs:
+                slug = j.slug or j.id
+                xml += f'  <url><loc>{base}/job/{j.id}/{slug}</loc><lastmod>{j.date_posted.strftime("%Y-%m-%d") if j.date_posted else datetime.now().strftime("%Y-%m-%d")}</lastmod></url>\n'
+            
+            scholars = Scholarship.query.filter_by(state='published').all()
+            for s in scholars:
+                slug = s.slug or s.id
+                xml += f'  <url><loc>{base}/scholarship/{s.id}/{slug}</loc><lastmod>{s.date_posted.strftime("%Y-%m-%d") if s.date_posted else datetime.now().strftime("%Y-%m-%d")}</lastmod></url>\n'
+        
         xml += '</urlset>'
         return Response(xml, mimetype='application/xml')
+
+    # --- robots.txt for SEO ---
+    @app.route('/robots.txt')
+    def robots():
+        txt = f"User-agent: *\nAllow: /\nSitemap: {request.url_root.rstrip('/')}/sitemap.xml\n"
+        return Response(txt, mimetype='text/plain')
 
     # --- Admin Routes ---
     @app.route('/login', methods=['GET', 'POST'])
@@ -101,6 +148,7 @@ def create_app():
                 description=description, apply_links=json.dumps([link]),
                 company=request.form.get('company', 'Manual Entry'),
                 location=request.form.get('location', 'Pakistan'),
+                category=request.form.get('category', 'Other'),
                 source='Admin Panel', state='published',
                 seo_title=title, slug=normalized.replace(" ", "-")
             )
@@ -119,24 +167,25 @@ def create_app():
         flash(f"Manually added new {type}: {title}")
         return redirect(url_for('admin'))
 
-    # --- Scraping Trigger Route ---
+    # --- Scraping Trigger Route (non-blocking) ---
     @app.route('/trigger-scrape')
     def trigger_scrape():
-        result = run_scrape_pipeline(app)
-        return result, 200
+        def bg_scrape():
+            with app.app_context():
+                run_scrape_pipeline(app)
+        t = threading.Thread(target=bg_scrape, daemon=True)
+        t.start()
+        return "Scraping started in background! Refresh the homepage in 30-60 seconds to see results.", 200
 
-    # --- Built-in Daily Scheduler (runs at midnight PKT) ---
+    # --- Built-in Daily Scheduler (midnight) ---
     def start_scheduler():
-        """Background thread that triggers scraping every 24 hours at midnight."""
         def scheduler_loop():
             while True:
                 now = datetime.now()
-                # Calculate seconds until next midnight
                 tomorrow = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
                 wait_seconds = (tomorrow - now).total_seconds()
                 print(f"[SCHEDULER] Next scrape in {wait_seconds/3600:.1f} hours (midnight)")
                 time.sleep(wait_seconds)
-                
                 print(f"[SCHEDULER] Running auto-scrape at {datetime.now()}")
                 with app.app_context():
                     run_scrape_pipeline(app)
@@ -146,27 +195,24 @@ def create_app():
         t.start()
         print("[SCHEDULER] Daily auto-scrape scheduler started (triggers at midnight)")
 
-    # Start scheduler only once (avoid double start in debug mode)
     if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         start_scheduler()
 
     return app
 
 def run_scrape_pipeline(app):
-    """Core scraping pipeline - scrape, clean, merge, publish."""
+    """Core scraping pipeline."""
     from scraper.job_scraper import scrape_sample_jobs
     from scraper.scholarship_scraper import scrape_sample_scholarships
     from ai_engine import process_pending_jobs, process_pending_scholarships
 
     try:
-        # Scrape fresh data
         print("=== SCRAPING JOBS ===")
         jobs = scrape_sample_jobs()
         print(f"=== SCRAPING SCHOLARSHIPS ===")
         scholars = scrape_sample_scholarships()
 
         with app.app_context():
-            # Remove expired jobs (older than 30 days)
             thirty_days_ago = datetime.utcnow() - timedelta(days=30)
             expired = Job.query.filter(Job.date_posted < thirty_days_ago).all()
             for ej in expired:
@@ -174,7 +220,6 @@ def run_scrape_pipeline(app):
             if expired:
                 print(f"Removed {len(expired)} expired jobs")
 
-            # Add new scraped data
             for j in jobs:
                 db.session.add(Job(**j))
             for s in scholars:
@@ -182,7 +227,6 @@ def run_scrape_pipeline(app):
             db.session.commit()
             print(f"Added {len(jobs)} jobs and {len(scholars)} scholarships to DB")
 
-            # Run AI merging
             process_pending_jobs()
             process_pending_scholarships()
 
