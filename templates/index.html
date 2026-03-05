@@ -9,14 +9,14 @@
 {% endfor %}
 {% endif %}
 
-<!-- Website Schema for Google -->
+<!-- Website Schema for Google Core Update Indexing -->
 <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "PK Opportunity Portal",
+        "name": "PK Jobs & Scholarships",
         "url": "{{ request.url_root }}",
-        "description": "Find verified government jobs, private sector careers, and fully funded scholarships for Pakistani students.",
+        "description": "Daily verified government jobs (سرکاری نوکریاں), private sector careers, and fully funded scholarships (وظائف) for Pakistani students.",
         "potentialAction": {
             "@type": "SearchAction",
             "target": "{{ request.url_root }}?q={search_term_string}",
@@ -28,52 +28,51 @@
 
 {% block content %}
 
-<!-- Hero Section (NJP Style) -->
+<!-- Hero Section (Mobile First) -->
 {% if not category_filter %}
-<div class="gradient-hero rounded-xl p-8 mb-8 text-white relative overflow-hidden">
+<div class="gradient-hero rounded-2xl p-6 md:p-8 mb-6 text-white relative overflow-hidden shadow-lg">
     <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
     <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
     <div class="relative z-10">
-        <h2 class="text-3xl font-extrabold mb-2">
-            {% if type == 'job' %}Find Your Dream Career in Pakistan{% else %}Fully Funded Scholarships{% endif %}
+        <h2 class="text-2xl md:text-3xl font-extrabold mb-1">
+            {% if type == 'job' %}Find Your Dream Job{% else %}Fully Funded Scholarships{% endif %}
         </h2>
-        <p class="text-green-100 text-lg mb-4">
+        <h3 class="text-lg text-pk-gold font-bold mb-4 urdu-text leading-none">
+            {% if type == 'job' %}پاکستان میں بہترین نوکریاں{% else %}مفت تعلیمی وظائف{% endif %}
+        </h3>
+
+        <p class="text-green-100 text-sm mb-5 leading-relaxed">
             {% if type == 'job' %}
-            {{ items|length }}+ verified job opportunities from {{ sources|length if sources else '6' }}+ trusted
-            portals
+            {{ items|length }}+ verified job opportunities from trusted portals (NJP, Punjab Jobs, etc).
             {% else %}
-            Latest scholarship opportunities from 10+ authentic blogs
+            Latest authentic scholarship opportunities right now.
             {% endif %}
         </p>
-        <div class="flex flex-wrap gap-2">
+
+        <!-- Search / Filter Badges (Tap targets large) -->
+        <div class="flex flex-wrap gap-2 md:gap-3">
             {% if type == 'job' %}
             <a href="/jobs/government"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🏛
-                Government</a>
+                class="px-5 py-2.5 bg-white text-pk-green rounded-xl text-sm font-bold shadow-md active:scale-95 transition flex items-center gap-2">🏛
+                <span class="urdu-text mt-1 text-xs">سرکاری</span> Govt</a>
             <a href="/jobs/private"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🏢
+                class="px-4 py-2.5 bg-white/20 backdrop-blur rounded-xl text-sm font-medium hover:bg-white/30 border border-white/30 active:scale-95 transition">🏢
                 Private</a>
             <a href="/jobs/it"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">💻
+                class="px-4 py-2.5 bg-white/20 backdrop-blur rounded-xl text-sm font-medium hover:bg-white/30 border border-white/30 active:scale-95 transition">💻
                 IT/Tech</a>
-            <a href="/jobs/education"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">📚
-                Education</a>
             {% else %}
             <a href="/scholarships?country=USA"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🇺🇸
+                class="px-4 py-2.5 bg-white/20 backdrop-blur rounded-xl text-sm font-medium border border-white/30 active:scale-95 transition">🇺🇸
                 USA</a>
             <a href="/scholarships?country=UK"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🇬🇧
+                class="px-4 py-2.5 bg-white/20 backdrop-blur rounded-xl text-sm font-medium border border-white/30 active:scale-95 transition">🇬🇧
                 UK</a>
             <a href="/scholarships?country=China"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🇨🇳
+                class="px-4 py-2.5 bg-white/20 backdrop-blur rounded-xl text-sm font-medium border border-white/30 active:scale-95 transition">🇨🇳
                 China</a>
-            <a href="/scholarships?country=Turkey"
-                class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-sm font-medium hover:bg-white/30 transition">🇹🇷
-                Turkey</a>
             <a href="/scholarships"
-                class="px-4 py-2 bg-pk-gold text-pk-green backdrop-blur rounded-lg text-sm font-bold hover:bg-yellow-400 transition">View
+                class="px-4 py-2.5 bg-pk-gold text-pk-green rounded-xl text-sm font-bold shadow-md active:scale-95 transition">View
                 All</a>
             {% endif %}
         </div>
@@ -82,21 +81,20 @@
 {% endif %}
 
 <!-- Section Header -->
-<div class="flex justify-between items-end border-b-2 border-pk-green pb-3 mb-6">
+<div class="flex justify-between items-end border-b-2 border-pk-green pb-2 mb-5">
     <div>
-        <h2 class="text-2xl font-extrabold text-gray-800">
+        <h2 class="text-xl md:text-2xl font-extrabold text-gray-800 flex items-center gap-2">
             {% if category_filter %}
             {{ category_filter|capitalize }} {{ type|capitalize }}s
             {% else %}
-            Latest {{ type|capitalize }}s
+            Latest {{ "نوکریاں" if type == 'job' else "سکالرشپس" }}
             {% endif %}
         </h2>
-        <p class="text-gray-500 text-sm mt-1">{{ items|length }} opportunities found • Auto-updated daily at midnight
-        </p>
+        <p class="text-gray-500 text-xs mt-0.5 urdu-text">روزانہ اپڈیٹ</p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100">
         <span class="pulse-dot w-2 h-2 bg-green-500 rounded-full inline-block"></span>
-        <span class="text-xs text-green-600 font-medium">Live</span>
+        <span class="text-[10px] text-green-700 font-bold tracking-wide uppercase">Live</span>
     </div>
 </div>
 
@@ -104,111 +102,97 @@
 {% if items %}
 <div class="space-y-4">
     {% for item in items %}
-    <article class="bg-white rounded-xl shadow-sm card-hover border border-gray-100 overflow-hidden" itemscope
+
+    <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden active:bg-gray-50 transition"
+        itemscope
         itemtype="{% if type == 'job' %}https://schema.org/JobPosting{% else %}https://schema.org/EducationalOccupationalProgram{% endif %}">
-        <div class="p-5">
-            <div class="flex justify-between items-start gap-4">
-                <div class="flex-grow">
-                    <!-- Title (links to blog detail page) -->
-                    <h3 class="text-lg font-bold text-gray-900 hover:text-pk-green transition mb-1" itemprop="title">
-                        <a href="/{{ type }}/{{ item.id }}/{{ item.slug or '' }}" class="hover:underline">
-                            {{ item.seo_title if item.seo_title else item.title }}
-                        </a>
-                    </h3>
+        <!-- Clickable wrapper for the whole card on mobile -->
+        <a href="/{{ type }}/{{ item.id }}/{{ item.slug or '' }}" class="block p-4 md:p-5">
 
-                    <!-- Tags Row -->
-                    <div class="flex flex-wrap gap-2 mb-3">
-                        {% if type == 'job' %}
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"
-                            itemprop="hiringOrganization">
-                            🏢 {{ item.company|truncate(30) }}
-                        </span>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
-                            itemprop="jobLocation">
-                            📍 {{ item.location }}
-                        </span>
-                        {% if item.category and item.category != 'Other' %}
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                            📂 {{ item.category }}
-                        </span>
-                        {% endif %}
-                        {% if item.scale and item.scale != 'Not Specified' %}
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                            📊 {{ item.scale }}
-                        </span>
-                        {% endif %}
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
-                            🔗 {{ item.source }}
-                        </span>
-                        {% elif type == 'scholarship' %}
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            💰 {{ item.funding_type }}
-                        </span>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                            🌍 {{ item.country }}
-                        </span>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                            🎓 {{ item.degree_level }}
-                        </span>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
-                            🔗 {{ item.source }}
-                        </span>
-                        {% endif %}
-                    </div>
+            <!-- Title -->
+            <h3 class="text-lg md:text-xl font-bold text-blue-900 leading-tight mb-2" itemprop="title">
+                {{ item.seo_title if item.seo_title else item.title }}
+            </h3>
 
-                    <!-- Description -->
-                    <p class="text-gray-600 text-sm leading-relaxed line-clamp-2" itemprop="description">
-                        {{ item.description|striptags|truncate(200) }}
-                    </p>
+            <!-- Tags / Metadata -->
+            <div class="flex flex-wrap gap-1.5 md:gap-2 mb-3">
+                {% if type == 'job' %}
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-gray-700"
+                    itemprop="hiringOrganization">
+                    🏢 {{ item.company|truncate(25) }}
+                </span>
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700"
+                    itemprop="jobLocation">
+                    📍 {{ item.location|truncate(20) }}
+                </span>
+                {% if item.category and item.category != 'Other' %}
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ 'bg-red-50 text-red-700' if item.category == 'Government' else 'bg-purple-50 text-purple-700' }}">
+                    📂 {{ item.category }}
+                </span>
+                {% endif %}
+                {% if item.scale and item.scale != 'Not Specified' %}
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                    📊 {{ item.scale }}
+                </span>
+                {% endif %}
+                {% elif type == 'scholarship' %}
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700">
+                    💰 {{ item.funding_type }}
+                </span>
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700">
+                    🌍 {{ item.country }}
+                </span>
+                <span
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-purple-50 text-purple-700">
+                    🎓 {{ item.degree_level }}
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Meta info row below tags -->
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                <div class="text-[11px] text-gray-500 font-medium">
+                    🗓️ {{ item.date_posted.strftime('%d %b %Y') if item.date_posted else 'Recently' }}
                 </div>
-
-                <!-- Apply Button -->
-                <div class="flex-shrink-0">
-                    <span
-                        class="block text-center px-5 py-2.5 bg-pk-green text-white rounded-lg font-semibold text-sm hover:bg-pk-green-light transition cursor-pointer shadow-sm">
-                        Apply →
-                    </span>
-                    <p class="text-[10px] text-gray-400 text-center mt-1">Official Link</p>
+                <!-- Big bold action text for uneducated users -->
+                <div class="text-pk-green-light font-bold text-sm flex items-center gap-1">
+                    مزید پڑھیں <span class="text-lg leading-none">→</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Bottom bar with date -->
-        <div class="bg-gray-50 px-5 py-2 border-t flex justify-between items-center text-xs text-gray-500">
-            <span>Posted: {{ item.date_posted.strftime('%d %b %Y') if item.date_posted else 'Recently' }}</span>
-            {% if type == 'job' %}<span>{{ item.job_type if item.job_type else 'Full-time' }}</span>{% endif %}
-        </div>
+        </a>
     </article>
 
-    <!-- In-Feed AdSense every 5 items -->
-    {% if loop.index % 5 == 0 %}
-    <div class="my-2">
-        <ins class="adsbygoogle" style="display:block" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"
-            data-ad-slot="XXXXXXXXXX"></ins>
+    <!-- In-Feed AdSense every 4 items (Mobile optimized) -->
+    {% if loop.index % 4 == 0 %}
+    <div
+        class="my-4 w-full bg-white rounded-xl overflow-hidden shadow-sm flex justify-center items-center min-h-[100px] border border-gray-100 p-2">
+        <ins class="adsbygoogle" style="display:block; width:100%; text-align:center;" data-ad-format="fluid"
+            data-ad-layout-key="-fb+5w+4e-db+86" data-ad-slot="YOUR_FEED_AD_SLOT"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
     {% endif %}
 
     {% endfor %}
 </div>
 {% else %}
-<div class="bg-white p-12 text-center rounded-xl shadow-sm border border-gray-100">
-    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <span class="text-3xl">🔍</span>
+<div class="bg-white p-8 md:p-12 text-center rounded-2xl shadow-sm border border-gray-200 mt-4">
+    <div
+        class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-green-100">
+        <span class="text-4xl leading-none -mt-1">🔍</span>
     </div>
-    <p class="text-gray-700 text-lg font-medium">No {{ type }}s available yet</p>
-    <p class="text-gray-400 text-sm mt-2">The system will auto-scrape fresh data at midnight tonight.</p>
+    <h3 class="text-gray-800 text-xl font-bold mb-1 urdu-text text-2xl">کوئی نوکری نہیں ملی</h3>
+    <p class="text-gray-500 text-sm mb-6">No data available right now. Let the system scrape fresh data.</p>
     <a href="/trigger-scrape"
-        class="inline-block mt-4 px-6 py-2 bg-pk-green text-white rounded-lg font-medium hover:bg-pk-green-light transition">Scrape
-        Now →</a>
+        class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-pk-green text-white rounded-xl font-bold hover:bg-pk-green-light active:scale-95 transition w-full md:w-auto shadow-md">
+        <span>Refresh Data Now</span>
+        <span>🔄</span>
+    </a>
 </div>
 {% endif %}
 
